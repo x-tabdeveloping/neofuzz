@@ -28,6 +28,12 @@ the thing for you.
 
 ## Usage
 
+You can install neofuzz from PyPI:
+
+```bash
+pip install neofuzz
+```
+
 The base abstraction of neofuzz is the `Process`, which is a class aimed at replicating TheFuzz's API.
 
 A `Process` takes a vectorizer, that turns strings into vectorized form, and different parameters
@@ -95,3 +101,5 @@ process.extract("she ate the cat", limit=3)
  ('She loves that cat', 30)]
 ```
 
+## Documentation
+TODO
