@@ -1,3 +1,3 @@
-from fuzz_lightyear.process import Process, char_ngram_process
+from neofuzz.process import Process, char_ngram_process
 
 all = [Process, char_ngram_process]
