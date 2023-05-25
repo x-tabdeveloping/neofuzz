@@ -2,8 +2,7 @@
 
 Blazing fast fuzzy text search for Python.
 
-## Introduction
-
+## Introduction [Documentation](https://x-tabdeveloping.github.io/neofuzz/)
 neofuzz is a fuzzy search library based on vectorization and approximate nearest neighbour
 search techniques.
 
@@ -100,6 +99,3 @@ process.extract("she ate the cat", limit=3)
  ('The dog at the cat.', 42),
  ('She loves that cat', 30)]
 ```
-
-## Documentation
-TODO
