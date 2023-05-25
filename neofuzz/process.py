@@ -21,6 +21,7 @@ class Process:
         The metric to use for computing nearest neighbors. If a callable is
         used it must be a numba njit compiled function. Supported metrics
         include:
+
         * euclidean
         * manhattan
         * chebyshev
@@ -44,6 +45,7 @@ class Process:
         * yule
         * hellinger
         * wasserstein-1d
+
         Metrics that take arguments (such as minkowski, mahalanobis etc.)
         can have arguments passed via the metric_kwds dictionary. At this
         time care must be taken and dictionary elements must be ordered
