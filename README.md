@@ -1,42 +1,40 @@
-# neofuzz
+# Neofuzz
 
-Blazing fast fuzzy text search for Python.
+Blazing fast, lightweight and customizable fuzzy and semantic text search in Python.
 
-## Introduction [Documentation](https://x-tabdeveloping.github.io/neofuzz/)
-neofuzz is a fuzzy search library based on vectorization and approximate nearest neighbour
+## Introduction ([Documentation](https://x-tabdeveloping.github.io/neofuzz/))
+Neofuzz is a fuzzy search library based on vectorization and approximate nearest neighbour
 search techniques.
 
-What neofuzz is good at:
-  - Hella Fast.
-  - Repeated searches in the same space of options.
-  - Compatibility with already existing TheFuzz code.
-  - Incredible flexibility in the vectorization process.
-  - Complete control over the nearest neighbour algorithm's speed and accuracy.
+### Why is Neofuzz fast?
+Most fuzzy search libraries rely on optimizing the hell out of the same couple of fuzzy search algorithms (Hamming distance, Levenshtein distance). Sometimes unfortunately due to the complexity of these algorithms, no amount of optimization will get you the speed, that you want.
 
-If you're looking for a scalable solution for searching the same, large dataset
-with lower quality of results but incredible speed, neofuzz is the thing you're looking for.
+Neofuzz makes the realization, that you can’t go above a certain speed limit by relying on traditional algorithms, and uses text vectorization and approximate nearest neighbour search in the vector space to speed up this process.
 
-What neofuzz is not good at:
-  - Exact and certainly correct results.
-  - Searching different databases in succession.
-  - Not the best fuzzy search algorithm.
+When it comes to the dilemma of speed versus accuracy, Neofuzz goes full-on speed.
 
-If you're looking for a library that's great for fuzzy searching small amount of data with a
-good fuzzy algorithm like levenshtein or hamming distance, neofuzz is probably not
-the thing for you.
+### When should I choose Neofuzz?
+ - You need to do repeated searches in the same corpus.
+ - Levenshtein and Hamming distance is simply not fast enough.
+ - You are willing to sacrifice the quality of the results for speed.
+ - You don’t mind that the up-front computation to index a corpus might take time.
+ - You have very long strings, where other methods would be impractical.
+ - You want to rely on semantic content.
+ - You need a drop-in replacement for TheFuzz.
 
-## Usage
+### When should I NOT choose Neofuzz?
+ - The corpus changes all the time, or you only want to do one search in a corpus. (It might still give speed-up in that case though.)
+ - You value the quality of the results over speed.
+ - You don’t mind slower searches in favor of no indexing.
+ - You have a small corpus with short strings.
 
-You can install neofuzz from PyPI:
+## [Usage](https://x-tabdeveloping.github.io/neofuzz/getting_started.html)
+
+You can install Neofuzz from PyPI:
 
 ```bash
 pip install neofuzz
 ```
-
-The base abstraction of neofuzz is the `Process`, which is a class aimed at replicating TheFuzz's API.
-
-A `Process` takes a vectorizer, that turns strings into vectorized form, and different parameters
-for fine-tuning the indexing process.
 
 If you want a plug-and play experience you can create a generally good quick and dirty
 process with the `char_ngram_process()` process.
@@ -68,34 +66,69 @@ process.extract("fuzz", limit=10)
  ('OFU', 17)]
 ```
 
-If you want to use a custom vectorization process with dimentionality reduction for example,
-you are more than free to do so by creating your own custom `Process`
+## [Custom Processes](https://x-tabdeveloping.github.io/neofuzz/custom_vectorizer.html)
+
+You can customize Neofuzz’s behaviour by making a custom process.
+Under the hood every Neofuzz Process relies on the same two components:
+
+ - A vectorizer, which turns texts into a vectorized form, and can be fully customized.
+ - Approximate Nearest Neighbour search, which indexes the vector space and can find neighbours of a given vector very quickly. This component is fixed to be PyNNDescent, but all of its parameters are exposed in the API, so its behaviour can also be altered at will.
+
+### Words as Features
+
+If you’re more interested in the words/semantic content of the text you can also use them as features. This can be very useful especially with longer texts, such as literary works.
 
 ```python
 from neofuzz import Process
-
-from sklearn.decomposition import NMF
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.pipeline import make_pipeline
 
-# Let's say we have a list of sentences instead of words,
-# Then we can use token ngrams as features
-tf_idf = TfidfVectorizer(analyzer="word", stop_words="english", ngram_range=(1,3))
-# We use NMF for reducing the dimensionality of the vectors to 20
-# This could improve speed but takes more time to set up the index
+ # Vectorization with words is the default in sklearn.
+ vectorizer = TfidfVectorizer()
+
+ # We use cosine distance because it's waay better for high-dimentional spaces.
+ process = Process(vectorizer, metric="cosine")
+```
+
+### Dimentionality Reduction
+
+You might find that the speed of your fuzzy search process is not sufficient. In this case it might be desirable to reduce the dimentionality of the produced vectors with some matrix decomposition method or topic model.
+
+Here for example I use NMF (excellent topic model and incredibly fast one too) too speed up my fuzzy search pipeline.
+
+```python
+from neofuzz import Process
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
+from sklear.pipeline import make_pipeline
+
+# Vectorization with tokens again
+vectorizer = TfidfVectorizer()
+# Dimentionality reduction method to 20 dimentions
 nmf = NMF(n_components=20)
+# Create a pipeline of the two
+pipeline = make_pipeline(vectorizer, nmf)
 
-# Our vectorizer is going to be a pipeline
-vectorizer = make_pipeline(tf_idf, nmf)
+process = Process(pipeline, metric="cosine")
+```
 
-# We create a process and index it with our corpus.
+### Semantic Search/Large Language Models
+
+With Neofuzz you can easily use semantic embeddings to your advantage, and can use both attention-based language models (Bert), just simple neural word or document embeddings (Word2Vec, Doc2Vec, FastText, etc.) or even OpenAI’s LLMs.
+
+We recommend you try embetter, which has a lot of built-in sklearn compatible vectorizers.
+```bash
+pip install embetter
+```
+
+```python
+from embetter.text import SentenceEncoder
+from neofuzz import Process
+
+# Here we will use a pretrained Bert sentence encoder as vectorizer
+vectorizer = SentenceEncoder("all-distilroberta-v1")
+# Then we make a process with the language model
 process = Process(vectorizer, metric="cosine")
-process.index(sentences)
 
-# Then you can extract results
-process.extract("she ate the cat", limit=3)
--------------------------------------------
-[('She ate the Apple.', 65),
- ('The dog at the cat.', 42),
- ('She loves that cat', 30)]
+# Remember that the options STILL have to be indexed even though you have a pretrained vectorizer
+process.index(options)
 ```
