@@ -220,101 +220,104 @@ neighbour search.</p>
 <li><p><strong>vectorizer</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn</span> <span class="pre">vectorizer</span></code>) – Some kind of vectorizer model that can vectorize strings.
 You could use tf-idf, bow or even a Pipeline that
 has multiple steps.</p></li>
-<li><p><strong>metric</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">'euclidean'</span></code><code class="xref py py-class docutils literal notranslate"><span class="pre">)</span></code>) – The metric to use for computing nearest neighbors. If a callable is
+<li><p><strong>metric</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">'euclidean'</span></code>) – <p>The metric to use for computing nearest neighbors. If a callable is
 used it must be a numba njit compiled function. Supported metrics
-include:
-* euclidean
-* manhattan
-* chebyshev
-* minkowski
-* canberra
-* braycurtis
-* mahalanobis
-* wminkowski
-* seuclidean
-* cosine
-* correlation
-* haversine
-* hamming
-* jaccard
-* dice
-* russelrao
-* kulsinski
-* rogerstanimoto
-* sokalmichener
-* sokalsneath
-* yule
-* hellinger
-* wasserstein-1d
-Metrics that take arguments (such as minkowski, mahalanobis etc.)
+include:</p>
+<ul>
+<li><p>euclidean</p></li>
+<li><p>manhattan</p></li>
+<li><p>chebyshev</p></li>
+<li><p>minkowski</p></li>
+<li><p>canberra</p></li>
+<li><p>braycurtis</p></li>
+<li><p>mahalanobis</p></li>
+<li><p>wminkowski</p></li>
+<li><p>seuclidean</p></li>
+<li><p>cosine</p></li>
+<li><p>correlation</p></li>
+<li><p>haversine</p></li>
+<li><p>hamming</p></li>
+<li><p>jaccard</p></li>
+<li><p>dice</p></li>
+<li><p>russelrao</p></li>
+<li><p>kulsinski</p></li>
+<li><p>rogerstanimoto</p></li>
+<li><p>sokalmichener</p></li>
+<li><p>sokalsneath</p></li>
+<li><p>yule</p></li>
+<li><p>hellinger</p></li>
+<li><p>wasserstein-1d</p></li>
+</ul>
+<p>Metrics that take arguments (such as minkowski, mahalanobis etc.)
 can have arguments passed via the metric_kwds dictionary. At this
 time care must be taken and dictionary elements must be ordered
-appropriately; this will hopefully be fixed in the future.</p></li>
-<li><p><strong>metric_kwds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">{}</span></code><code class="xref py py-class docutils literal notranslate"><span class="pre">)</span></code>) – Arguments to pass on to the metric, such as the <code class="docutils literal notranslate"><span class="pre">p</span></code> value for
+appropriately; this will hopefully be fixed in the future.</p>
+</p></li>
+<li><p><strong>metric_kwds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">{}</span></code>) – Arguments to pass on to the metric, such as the <code class="docutils literal notranslate"><span class="pre">p</span></code> value for
 Minkowski distance.</p></li>
-<li><p><strong>n_neighbors</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">30)</span></code>) – The number of neighbors to use in k-neighbor graph graph_data structure
+<li><p><strong>n_neighbors</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">30</span></code>) – The number of neighbors to use in k-neighbor graph graph_data structure
 used for fast approximate nearest neighbor search. Larger values
 will result in more accurate search results at the cost of
 computation time.</p></li>
-<li><p><strong>n_trees</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">None)</span></code>) – This implementation uses random projection forests for initializing the index
+<li><p><strong>n_trees</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – This implementation uses random projection forests for initializing the index
 build process.
 This parameter controls the number of trees in that forest.
 A larger number will result in more accurate neighbor computation
 at the cost of performance.
 The default of None means a value will be chosen based on the
 size of the graph_data.</p></li>
-<li><p><strong>leaf_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">None)</span></code>) – The maximum number of points in a leaf for the random projection trees.
+<li><p><strong>leaf_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – The maximum number of points in a leaf for the random projection trees.
 The default of None means a value will be chosen based on n_neighbors.</p></li>
-<li><p><strong>pruning_degree_multiplier</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">1.5)</span></code>) – How aggressively to prune the graph.
+<li><p><strong>pruning_degree_multiplier</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">1.5</span></code>) – How aggressively to prune the graph.
 Since the search graph is undirected
 (and thus includes nearest neighbors and reverse nearest neighbors)
 vertices can have very high degree
 – the graph will be pruned such that no
 vertex has degree greater than
 <code class="docutils literal notranslate"><span class="pre">pruning_degree_multiplier</span> <span class="pre">*</span> <span class="pre">n_neighbors</span></code>.</p></li>
-<li><p><strong>diversify_prob</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">1.0)</span></code>) – The search graph get “diversified” by removing potentially unnecessary
+<li><p><strong>diversify_prob</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">1.0</span></code>) – The search graph get “diversified” by removing potentially unnecessary
 edges. This controls the volume of edges removed.
 A value of 0.0 ensures that no edges get removed,
 and larger values result in significantly more
 aggressive edge removal.
 A value of 1.0 will prune all edges that it can.</p></li>
-<li><p><strong>tree_init</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">True)</span></code>) – Whether to use random projection trees for initialization.</p></li>
-<li><p><strong>init_graph</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">None)</span></code>) – 2D array of indices of candidate neighbours of the shape
+<li><p><strong>tree_init</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>) – Whether to use random projection trees for initialization.</p></li>
+<li><p><strong>init_graph</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – 2D array of indices of candidate neighbours of the shape
 (data.shape[0], n_neighbours). If the j-th neighbour of the i-th
 instances is unknown, use init_graph[i, j] = -1</p></li>
-<li><p><strong>init_dist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">None)</span></code>) – 2D array with the same shape as init_graph,
+<li><p><strong>init_dist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – 2D array with the same shape as init_graph,
 such that metric(data[i], data[init_graph[i, j]]) equals
 init_dist[i, j]</p></li>
-<li><p><strong>random_state</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RandomState</span> <span class="pre">instance</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">optional</span> <span class="pre">(default</span></code>: <code class="xref py py-class docutils literal notranslate"><span class="pre">None)</span></code>) – If int, random_state is the seed used by the random number generator;
+<li><p><strong>random_state</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RandomState</span> <span class="pre">instance</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – If int, random_state is the seed used by the random number generator;
 If RandomState instance, random_state is the random number generator;
 If None, the random number generator is the RandomState instance used
 by <cite>np.random</cite>.</p></li>
-<li><p><strong>algorithm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">'standard'</span></code><code class="xref py py-class docutils literal notranslate"><span class="pre">)</span></code>) – This implementation provides an alternative algorithm for
+<li><p><strong>algorithm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">'standard'</span></code>) – This implementation provides an alternative algorithm for
 construction of the k-neighbors graph used as a search index. The
 alternative algorithm can be fast for large <code class="docutils literal notranslate"><span class="pre">n_neighbors</span></code> values.
 The``’alternative’`` algorithm has been deprecated and is no longer
 available.</p></li>
-<li><p><strong>low_memory</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">boolean</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">True)</span></code>) – Whether to use a lower memory, but more computationally expensive
+<li><p><strong>low_memory</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">boolean</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>) – Whether to use a lower memory, but more computationally expensive
 approach to index construction.</p></li>
-<li><p><strong>max_candidates</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">None)</span></code>) – Internally each “self-join” keeps a maximum number of candidates (
+<li><p><strong>max_candidates</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – Internally each “self-join” keeps a maximum number of candidates (
 nearest neighbors and reverse nearest neighbors) to be considered.
 This value controls this aspect of the algorithm. Larger values will
 provide more accurate search results later, but potentially at
 non-negligible computation cost in building the index. Don’t tweak
 this value unless you know what you’re doing.</p></li>
-<li><p><strong>n_iters</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">None)</span></code>) – The maximum number of NN-descent iterations to perform. The
+<li><p><strong>n_iters</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – The maximum number of NN-descent iterations to perform. The
 NN-descent algorithm can abort early if limited progress is being
 made, so this only controls the worst case. Don’t tweak
 this value unless you know what you’re doing. The default of None means
 a value will be chosen based on the size of the graph_data.</p></li>
-<li><p><strong>delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">0.001)</span></code>) – Controls the early abort due to limited progress. Larger values
+<li><p><strong>delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0.001</span></code>) – Controls the early abort due to limited progress. Larger values
 will result in earlier aborts, providing less accurate indexes,
 and less accurate searching. Don’t tweak this value unless you know
 what you’re doing.</p></li>
-<li><p><strong>n_jobs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">optional</span> <span class="pre">(default=None)</span></code>) – The number of parallel jobs to run for neighbors index construction.
+<li><p><strong>n_jobs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – The number of parallel jobs to run for neighbors index construction.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
 <code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors.</p></li>
-<li><p><strong>compressed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span> <span class="pre">(optional</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">False)</span></code>) – Whether to prune out data not needed for searching the index. This will
+<li><p><strong>compressed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>) – Whether to prune out data not needed for searching the index. This will
 result in a significantly smaller index, particularly useful
 for saving,
 but will remove information that might otherwise be useful.</p></li>
