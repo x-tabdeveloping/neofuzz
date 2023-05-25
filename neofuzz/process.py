@@ -17,46 +17,46 @@ class Process:
         Some kind of vectorizer model that can vectorize strings.
         You could use tf-idf, bow or even a Pipeline that
         has multiple steps.
-    metric: string or callable (optional, default='euclidean')
+    metric: string or callable, default 'euclidean'
         The metric to use for computing nearest neighbors. If a callable is
         used it must be a numba njit compiled function. Supported metrics
         include:
-            * euclidean
-            * manhattan
-            * chebyshev
-            * minkowski
-            * canberra
-            * braycurtis
-            * mahalanobis
-            * wminkowski
-            * seuclidean
-            * cosine
-            * correlation
-            * haversine
-            * hamming
-            * jaccard
-            * dice
-            * russelrao
-            * kulsinski
-            * rogerstanimoto
-            * sokalmichener
-            * sokalsneath
-            * yule
-            * hellinger
-            * wasserstein-1d
+        * euclidean
+        * manhattan
+        * chebyshev
+        * minkowski
+        * canberra
+        * braycurtis
+        * mahalanobis
+        * wminkowski
+        * seuclidean
+        * cosine
+        * correlation
+        * haversine
+        * hamming
+        * jaccard
+        * dice
+        * russelrao
+        * kulsinski
+        * rogerstanimoto
+        * sokalmichener
+        * sokalsneath
+        * yule
+        * hellinger
+        * wasserstein-1d
         Metrics that take arguments (such as minkowski, mahalanobis etc.)
         can have arguments passed via the metric_kwds dictionary. At this
         time care must be taken and dictionary elements must be ordered
         appropriately; this will hopefully be fixed in the future.
-    metric_kwds: dict (optional, default {})
+    metric_kwds: dict, default {}
         Arguments to pass on to the metric, such as the ``p`` value for
         Minkowski distance.
-    n_neighbors: int (optional, default=30)
+    n_neighbors: int, default 30
         The number of neighbors to use in k-neighbor graph graph_data structure
         used for fast approximate nearest neighbor search. Larger values
         will result in more accurate search results at the cost of
         computation time.
-    n_trees: int (optional, default=None)
+    n_trees: int, default None
         This implementation uses random projection forests for initializing the index
         build process.
         This parameter controls the number of trees in that forest.
@@ -64,10 +64,10 @@ class Process:
         at the cost of performance.
         The default of None means a value will be chosen based on the
         size of the graph_data.
-    leaf_size: int (optional, default=None)
+    leaf_size: int, default None
         The maximum number of points in a leaf for the random projection trees.
         The default of None means a value will be chosen based on n_neighbors.
-    pruning_degree_multiplier: float (optional, default=1.5)
+    pruning_degree_multiplier: float, default 1.5
         How aggressively to prune the graph.
         Since the search graph is undirected
         (and thus includes nearest neighbors and reverse nearest neighbors)
@@ -75,60 +75,60 @@ class Process:
         -- the graph will be pruned such that no
         vertex has degree greater than
         ``pruning_degree_multiplier * n_neighbors``.
-    diversify_prob: float (optional, default=1.0)
+    diversify_prob: float, default 1.0
         The search graph get "diversified" by removing potentially unnecessary
         edges. This controls the volume of edges removed.
         A value of 0.0 ensures that no edges get removed,
         and larger values result in significantly more
         aggressive edge removal.
         A value of 1.0 will prune all edges that it can.
-    tree_init: bool (optional, default=True)
+    tree_init: bool, default True
         Whether to use random projection trees for initialization.
-    init_graph: np.ndarray (optional, default=None)
+    init_graph: np.ndarray, default None
         2D array of indices of candidate neighbours of the shape
         (data.shape[0], n_neighbours). If the j-th neighbour of the i-th
         instances is unknown, use init_graph[i, j] = -1
-    init_dist: np.ndarray (optional, default=None)
+    init_dist: np.ndarray, default None
         2D array with the same shape as init_graph,
         such that metric(data[i], data[init_graph[i, j]]) equals
         init_dist[i, j]
-    random_state: int, RandomState instance or None, optional (default: None)
+    random_state: int, RandomState instance or None, default None
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-    algorithm: string (optional, default='standard')
+    algorithm: str, default 'standard'
         This implementation provides an alternative algorithm for
         construction of the k-neighbors graph used as a search index. The
         alternative algorithm can be fast for large ``n_neighbors`` values.
         The``'alternative'`` algorithm has been deprecated and is no longer
         available.
-    low_memory: boolean (optional, default=True)
+    low_memory: boolean, default True
         Whether to use a lower memory, but more computationally expensive
         approach to index construction.
-    max_candidates: int (optional, default=None)
+    max_candidates: int, default None
         Internally each "self-join" keeps a maximum number of candidates (
         nearest neighbors and reverse nearest neighbors) to be considered.
         This value controls this aspect of the algorithm. Larger values will
         provide more accurate search results later, but potentially at
         non-negligible computation cost in building the index. Don't tweak
         this value unless you know what you're doing.
-    n_iters: int (optional, default=None)
+    n_iters: int, default None
         The maximum number of NN-descent iterations to perform. The
         NN-descent algorithm can abort early if limited progress is being
         made, so this only controls the worst case. Don't tweak
         this value unless you know what you're doing. The default of None means
         a value will be chosen based on the size of the graph_data.
-    delta: float (optional, default=0.001)
+    delta: float, default 0.001
         Controls the early abort due to limited progress. Larger values
         will result in earlier aborts, providing less accurate indexes,
         and less accurate searching. Don't tweak this value unless you know
         what you're doing.
-    n_jobs: int or None, optional (default=None)
+    n_jobs: int or None, default None
         The number of parallel jobs to run for neighbors index construction.
         ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.
         ``-1`` means using all processors.
-    compressed: bool (optional, default=False)
+    compressed: bool, default False
         Whether to prune out data not needed for searching the index. This will
         result in a significantly smaller index, particularly useful
         for saving,
@@ -195,7 +195,13 @@ class Process:
             All options in which we want search.
         """
         self.options = np.array(options)
-        dtm = self.vectorizer.fit_transform(self.options)
+        try:
+            self.vectorizer.fit(self.options)
+        except AttributeError:
+            print(
+                "Vectorizer could not be fitted, we assume it was pretrained."
+            )
+        dtm = self.vectorizer.transform(self.options)
         self.nearest_neighbours = pynndescent.NNDescent(
             dtm, **self.nearest_neighbours_kwargs
         )
