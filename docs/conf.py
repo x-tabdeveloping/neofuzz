@@ -34,13 +34,13 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "furo"
 # html_collapsible_definitions = True
 # html_awesome_code_headers = True
-# html_favicon = "_static/icon.svg"
-# html_logo = "_static/icon_w_title_below.png"
+html_favicon = "_static/logo.svg"
+# html_logo = "_static/logo.png"
 html_title = "Neofuzz"
 html_static_path = ["_static"]
 html_theme_options = {
-    # "light_logo": "icon.svg",
-    # "dark_logo": "icon.svg",
+    "light_logo": "logo.svg",
+    "dark_logo": "logo.svg",
     "light_css_variables": {
         "color-api-name": "#28a4df",
         "color-api-pre-name": "#ffa671",
