@@ -1,4 +1,8 @@
+<img align="left" width="82" height="82" src="docs/_static/logo.svg">
+
 # Neofuzz
+
+<br>
 
 Blazing fast, lightweight and customizable fuzzy and semantic text search in Python.
 
