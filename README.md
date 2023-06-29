@@ -49,7 +49,7 @@ from neofuzz import char_ngram_process
 # We create a process that takes character 1 to 5-grams as features for
 # vectorization and uses a tf-idf weighting scheme.
 # We will use cosine distance for the nearest neighbour search.
-process = char_ngram_process(ngram_range=(1,5), metrics="cosine", tf_idf=True)
+process = char_ngram_process(ngram_range=(1,5), metric="cosine", tf_idf=True)
 
 # We index the options that we are going to search in
 process.index(options)
@@ -103,7 +103,7 @@ Here for example I use NMF (excellent topic model and incredibly fast one too) t
 from neofuzz import Process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
-from sklear.pipeline import make_pipeline
+from sklearn.pipeline import make_pipeline
 
 # Vectorization with tokens again
 vectorizer = TfidfVectorizer()
