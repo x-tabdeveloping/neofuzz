@@ -5,6 +5,8 @@ import pynndescent
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import pairwise_distances
 
+from neofuzz.tokenization import wordpiece_vectorizer
+
 
 class Process:
     """TheFuzz-compatible process class for quick searching options.
@@ -13,11 +15,12 @@ class Process:
 
     Parameters
     ----------
-    vectorizer: sklearn vectorizer
+    vectorizer: sklearn vectorizer, default None
         Some kind of vectorizer model that can vectorize strings.
         You could use tf-idf, bow or even a Pipeline that
         has multiple steps.
-    metric: string or callable, default 'euclidean'
+        When not specified a pretrained WordPiece tokenizer is used.
+    metric: string or callable, default 'cosine'
         The metric to use for computing nearest neighbors. If a callable is
         used it must be a numba njit compiled function. Supported metrics
         include:
@@ -139,8 +142,8 @@ class Process:
 
     def __init__(
         self,
-        vectorizer,
-        metric="euclidean",
+        vectorizer=None,
+        metric="cosine",
         metric_kwds=None,
         n_neighbors=30,
         n_trees=None,
@@ -161,7 +164,11 @@ class Process:
         parallel_batch_queries=False,
         verbose=False,
     ):
-        self.vectorizer = vectorizer
+        if vectorizer is not None:
+            self.vectorizer = vectorizer
+        else:
+            self.vectorizer = wordpiece_vectorizer()
+
         self.nearest_neighbours_kwargs = {
             "metric": metric,
             "metric_kwds": metric_kwds,
