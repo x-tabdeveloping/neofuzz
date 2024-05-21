@@ -29,10 +29,6 @@ class SubWordVectorizer(CountVectorizer):
         self._hf_tokenizer = Tokenizer.from_pretrained(from_model)
         self.from_model = from_model
 
-        def _tokenize(text: str) -> list[str]:
-            output = self._hf_tokenizer.encode(text)
-            return output.tokens
-
         super().__init__(
             input=input,
             encoding=encoding,
@@ -42,5 +38,9 @@ class SubWordVectorizer(CountVectorizer):
             min_df=min_df,
             max_features=max_features,
             lowercase=False,
-            tokenizer=_tokenize,
+            tokenizer=self._tokenize,
         )
+
+    def _tokenize(self, text: str) -> list[str]:
+        output = self._hf_tokenizer.encode(text)
+        return output.tokens
