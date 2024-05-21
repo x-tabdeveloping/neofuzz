@@ -22,7 +22,6 @@ class Process:
         Some kind of vectorizer model that can vectorize strings.
         You could use tf-idf, bow or even a Pipeline that
         has multiple steps.
-        When not specified a pretrained WordPiece tokenizer is used to extract features.
     metric: string or callable, default 'cosine'
         The metric to use for computing nearest neighbors. If a callable is
         used it must be a numba njit compiled function. Supported metrics
@@ -145,7 +144,7 @@ class Process:
 
     def __init__(
         self,
-        vectorizer=None,
+        vectorizer,
         metric="cosine",
         metric_kwds=None,
         n_neighbors=30,
@@ -167,10 +166,6 @@ class Process:
         parallel_batch_queries=False,
         verbose=False,
     ):
-        if vectorizer is not None:
-            self.vectorizer = vectorizer
-        else:
-            self.vectorizer = SubWordVectorizer()
 
         self.nearest_neighbours_kwargs = {
             "metric": metric,
