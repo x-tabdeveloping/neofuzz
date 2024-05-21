@@ -216,7 +216,32 @@
 <p>Neofuzz makes it easy to do fuzzy search in text corpora.
 Sometimes it is, however beneficial to be able to access metadata about the entries retrieved in fuzzy search.</p>
 <p>The most sensible way to handle this is to store your metadata in a table that is in the same order as the corpus.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># The tenth element in both corresponds to the same entry</span>
+<span class="n">tenth_text</span> <span class="o">=</span> <span class="n">corpus</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+<span class="n">tenth_metadata_entry</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+</pre></div>
+</div>
 <p>Then you can use the query() method to retrieve indices and distances instead of passages:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">neofuzz</span> <span class="kn">import</span> <span class="n">Process</span>
+
+<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">process</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+
+<span class="c1"># Both results will be arrays shaped (len(search_terms), limit)</span>
+<span class="n">indices</span><span class="p">,</span> <span class="n">distances</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">search_terms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Search term 1&quot;</span><span class="p">,</span> <span class="s2">&quot;Search term 2&quot;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">results_for_term1</span> <span class="o">=</span> <span class="p">[</span><span class="n">corpus</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="n">metadata_for_term1</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+<span class="n">results_for_term2</span> <span class="o">=</span> <span class="p">[</span><span class="n">corpus</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="n">metadata_for_term2</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+</pre></div>
+</div>
 </section>
 
         </article>

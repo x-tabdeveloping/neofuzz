@@ -216,7 +216,21 @@
 <p>You might want to persist processes to disk and reuses them in production pipelines.
 Neofuzz can serialize indexed Process objects for you using <cite>joblib</cite>.</p>
 <p>You can save indexed processes like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">neofuzz</span> <span class="kn">import</span> <span class="n">char_ngram_process</span>
+<span class="kn">from</span> <span class="nn">neofuzz.tokenization</span> <span class="kn">import</span> <span class="n">SubWordVectorizer</span>
+
+<span class="n">process</span> <span class="o">=</span> <span class="n">char_ngram_process</span><span class="p">()</span>
+<span class="n">process</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+
+<span class="n">process</span><span class="o">.</span><span class="n">to_disk</span><span class="p">(</span><span class="s2">&quot;process.joblib&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>And then load them in a production environment:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">neofuzz</span> <span class="kn">import</span> <span class="n">Process</span>
+
+<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="o">.</span><span class="n">from_disk</span><span class="p">(</span><span class="s2">&quot;process.joblib&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 
         </article>

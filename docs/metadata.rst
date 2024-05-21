@@ -7,6 +7,7 @@ Sometimes it is, however beneficial to be able to access metadata about the entr
 The most sensible way to handle this is to store your metadata in a table that is in the same order as the corpus.
 
 .. code-block:: python
+
    import pandas as pd
 
    corpus: list[str] = [...]
@@ -19,6 +20,7 @@ The most sensible way to handle this is to store your metadata in a table that i
 Then you can use the query() method to retrieve indices and distances instead of passages:
 
 .. code-block:: python
+
    from neofuzz import Process
  
    process = Process(...)

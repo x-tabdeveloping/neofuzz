@@ -7,6 +7,7 @@ Neofuzz can serialize indexed Process objects for you using `joblib`.
 You can save indexed processes like so:
 
 .. code-block:: python
+
    from neofuzz import char_ngram_process
    from neofuzz.tokenization import SubWordVectorizer
  
@@ -19,6 +20,7 @@ You can save indexed processes like so:
 And then load them in a production environment:
 
 .. code-block:: python
+
    from neofuzz import Process
  
    process = Process.from_disk("process.joblib")
