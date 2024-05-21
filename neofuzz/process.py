@@ -1,11 +1,14 @@
-from typing import Iterable, List, Optional, Tuple
+import warnings
+from pathlib import Path
+from typing import Iterable, List, Optional, Tuple, Union
 
+import joblib
 import numpy as np
 import pynndescent
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import pairwise_distances
 
-from neofuzz.tokenization import wordpiece_vectorizer
+from neofuzz.tokenization import SubWordVectorizer
 
 
 class Process:
@@ -19,7 +22,7 @@ class Process:
         Some kind of vectorizer model that can vectorize strings.
         You could use tf-idf, bow or even a Pipeline that
         has multiple steps.
-        When not specified a pretrained WordPiece tokenizer is used.
+        When not specified a pretrained WordPiece tokenizer is used to extract features.
     metric: string or callable, default 'cosine'
         The metric to use for computing nearest neighbors. If a callable is
         used it must be a numba njit compiled function. Supported metrics
@@ -167,7 +170,7 @@ class Process:
         if vectorizer is not None:
             self.vectorizer = vectorizer
         else:
-            self.vectorizer = wordpiece_vectorizer()
+            self.vectorizer = SubWordVectorizer()
 
         self.nearest_neighbours_kwargs = {
             "metric": metric,
@@ -332,6 +335,33 @@ class Process:
         distance = np.ravel(distance)[0]
         score = (1 - distance) * 100
         return int(score)
+
+    def to_disk(self, filename: Union[str, Path]):
+        """Persists indexed process to disk.
+
+        Parameters
+        ----------
+        filename: str or Path
+            File path to save the process to.
+            e.g. `process.joblib`
+        """
+        if self.options is None or self.nearest_neighbours is None:
+            warnings.warn(
+                "No options were provided and the process is not indexed. Are you sure you want to persist yet?"
+            )
+        joblib.dump(self, filename)
+
+    @staticmethod
+    def from_disk(filename: Union[str, Path]):
+        """Loads indexed process from disk.
+
+        Parameters
+        ----------
+        filename: str or Path
+            File path to save the process to.
+            e.g. `process.joblib`
+        """
+        return joblib.load(filename)
 
 
 def char_ngram_process(
