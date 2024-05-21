@@ -18,7 +18,7 @@ class Process:
 
     Parameters
     ----------
-    vectorizer: sklearn vectorizer, default None
+    vectorizer: sklearn vectorizer
         Some kind of vectorizer model that can vectorize strings.
         You could use tf-idf, bow or even a Pipeline that
         has multiple steps.
