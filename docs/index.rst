@@ -9,6 +9,7 @@ Neofuzz is a lightweight Python library for crazy fast fuzzy search.
    what_is_neofuzz
    getting_started
    custom_vectorizer
+   persistence
 
 .. toctree::
    :maxdepth: 1
