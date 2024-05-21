@@ -8,8 +8,6 @@ import pynndescent
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import pairwise_distances
 
-from neofuzz.tokenization import SubWordVectorizer
-
 
 class Process:
     """TheFuzz-compatible process class for quick searching options.
