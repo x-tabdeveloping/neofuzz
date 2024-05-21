@@ -164,7 +164,7 @@ class Process:
         parallel_batch_queries=False,
         verbose=False,
     ):
-
+        self.vectorizer = vectorizer
         self.nearest_neighbours_kwargs = {
             "metric": metric,
             "metric_kwds": metric_kwds,
