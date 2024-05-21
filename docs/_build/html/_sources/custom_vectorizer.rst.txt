@@ -53,15 +53,34 @@ This can be very useful especially with longer texts, such as literary works.
    # Vectorization with words is the default in sklearn.
    vectorizer = TfidfVectorizer()
 
-   # We use cosine distance because it's waay better for high-dimentional spaces.
+   # We use cosine distance because it's waay better for high-dimensional spaces.
    process = Process(vectorizer, metric="cosine")
 
 
-Dimentionality Reduction
+Subword Features (New in 0.2.0)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You might want to utilize subword features in your pipelines, that are a bit more informative than character n-grams.
+A good option for this is to use a pretrained tokenizer from a language model!
+
+Here's an example of how to use a Bert-type WordPiece tokenizer for vectorization:
+
+.. code-block:: python
+
+  from neofuzz import Process
+  from neofuzz.tokenization import SubWordVectorizer
+
+   # We can use bert's wordpiece tokenizer for feature extraction
+   vectorizer = SubWordVectorizer("bert-base-uncased")
+
+   process = Process(vectorizer, metric="cosine")
+
+
+Dimensionality Reduction
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 You might find that the speed of your fuzzy search process is not sufficient. In this case it might be desirable to
-reduce the dimentionality of the produced vectors with some matrix decomposition method or topic model.
+reduce the dimensionality of the produced vectors with some matrix decomposition method or topic model.
 
 Here for example I use NMF (excellent topic model and incredibly fast one too) too speed up my fuzzy search pipeline.
 
@@ -74,7 +93,7 @@ Here for example I use NMF (excellent topic model and incredibly fast one too) t
 
    # Vectorization with tokens again
    vectorizer = TfidfVectorizer()
-   # Dimentionality reduction method to 20 dimentions
+   # Dimensionality reduction method to 20 dimensions
    nmf = NMF(n_components=20)
    # Create a pipeline of the two
    pipeline = make_pipeline(vectorizer, nmf)

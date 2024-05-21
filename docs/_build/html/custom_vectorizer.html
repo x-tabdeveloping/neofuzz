@@ -2,13 +2,13 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API reference" href="api_reference.html" /><link rel="prev" title="Getting Started" href="getting_started.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Handling Metadata" href="metadata.html" /><link rel="prev" title="Getting Started" href="getting_started.html" />
 
-    <link rel="shortcut icon" href="_static/logo.svg"/><!-- Generated with Sphinx 5.0.2 and Furo 2022.12.07 -->
+    <link rel="shortcut icon" href="_static/logo.svg"/><meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/>
         <title>Custom Processes - Neofuzz</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -159,7 +159,7 @@
   <span class="sidebar-brand-text">Neofuzz</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -169,6 +169,8 @@
 <li class="toctree-l1"><a class="reference internal" href="what_is_neofuzz.html">What is Neofuzz?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Custom Processes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Handling Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistence.html">Persistence</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
@@ -195,8 +197,7 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          
-<div class="theme-toggle-container theme-toggle-content">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -254,15 +255,30 @@ This can be very useful especially with longer texts, such as literary works.</p
  <span class="c1"># Vectorization with words is the default in sklearn.</span>
  <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">()</span>
 
- <span class="c1"># We use cosine distance because it&#39;s waay better for high-dimentional spaces.</span>
+ <span class="c1"># We use cosine distance because it&#39;s waay better for high-dimensional spaces.</span>
  <span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="dimentionality-reduction">
-<h2>Dimentionality Reduction<a class="headerlink" href="#dimentionality-reduction" title="Permalink to this heading">#</a></h2>
+<section id="subword-features-new-in-0-2-0">
+<h2>Subword Features (New in 0.2.0)<a class="headerlink" href="#subword-features-new-in-0-2-0" title="Permalink to this heading">#</a></h2>
+<p>You might want to utilize subword features in your pipelines, that are a bit more informative than character n-grams.
+A good option for this is to use a pretrained tokenizer from a language model!</p>
+<p>Here’s an example of how to use a Bert-type WordPiece tokenizer for vectorization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">neofuzz</span> <span class="kn">import</span> <span class="n">Process</span>
+<span class="kn">from</span> <span class="nn">neofuzz.tokenization</span> <span class="kn">import</span> <span class="n">SubWordVectorizer</span>
+
+ <span class="c1"># We can use bert&#39;s wordpiece tokenizer for feature extraction</span>
+ <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">SubWordVectorizer</span><span class="p">(</span><span class="s2">&quot;bert-base-uncased&quot;</span><span class="p">)</span>
+
+ <span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="dimensionality-reduction">
+<h2>Dimensionality Reduction<a class="headerlink" href="#dimensionality-reduction" title="Permalink to this heading">#</a></h2>
 <p>You might find that the speed of your fuzzy search process is not sufficient. In this case it might be desirable to
-reduce the dimentionality of the produced vectors with some matrix decomposition method or topic model.</p>
+reduce the dimensionality of the produced vectors with some matrix decomposition method or topic model.</p>
 <p>Here for example I use NMF (excellent topic model and incredibly fast one too) too speed up my fuzzy search pipeline.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">neofuzz</span> <span class="kn">import</span> <span class="n">Process</span>
 <span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span>
@@ -271,7 +287,7 @@ reduce the dimentionality of the produced vectors with some matrix decomposition
 
 <span class="c1"># Vectorization with tokens again</span>
 <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">()</span>
-<span class="c1"># Dimentionality reduction method to 20 dimentions</span>
+<span class="c1"># Dimensionality reduction method to 20 dimensions</span>
 <span class="n">nmf</span> <span class="o">=</span> <span class="n">NMF</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 <span class="c1"># Create a pipeline of the two</span>
 <span class="n">pipeline</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">nmf</span><span class="p">)</span>
@@ -325,17 +341,17 @@ just simple neural word or document embeddings (Word2Vec, Doc2Vec, FastText, etc
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="api_reference.html">
+          <a class="next-page" href="metadata.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">API reference</div>
+                <div class="title">Handling Metadata</div>
               </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <svg><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="getting_started.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -357,7 +373,9 @@ just simple neural word or document embeddings (Word2Vec, Doc2Vec, FastText, etc
             
           </div>
           <div class="right-details">
-            
+            <div class="icons">
+              
+            </div>
           </div>
         </div>
         
@@ -369,7 +387,7 @@ just simple neural word or document embeddings (Word2Vec, Doc2Vec, FastText, etc
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
-            On this page
+            Contents
           </span>
         </div>
         <div class="toc-tree-container">
@@ -378,7 +396,8 @@ just simple neural word or document embeddings (Word2Vec, Doc2Vec, FastText, etc
 <li><a class="reference internal" href="#">Custom Processes</a><ul>
 <li><a class="reference internal" href="#the-character-n-gram-process">The Character N-gram Process</a></li>
 <li><a class="reference internal" href="#words-as-features">Words as Features</a></li>
-<li><a class="reference internal" href="#dimentionality-reduction">Dimentionality Reduction</a></li>
+<li><a class="reference internal" href="#subword-features-new-in-0-2-0">Subword Features (New in 0.2.0)</a></li>
+<li><a class="reference internal" href="#dimensionality-reduction">Dimensionality Reduction</a></li>
 <li><a class="reference internal" href="#semantic-search">Semantic Search</a></li>
 <li><a class="reference internal" href="#custom-nearest-neighbour-search">Custom Nearest Neighbour Search</a></li>
 </ul>
