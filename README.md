@@ -10,6 +10,20 @@ Blazing fast, lightweight and customizable fuzzy and semantic text search in Pyt
 Neofuzz is a fuzzy search library based on vectorization and approximate nearest neighbour
 search techniques.
 
+### New in version 0.3.0
+Now you can reorder your search results using Levenshtein distance!
+Sometimes n-gram processes or vectorized processes don't quite order the results correctly.
+In these cases you can retrieve a higher number of examples from the indexed corpus, then refine those results with Levenshtein distance.
+
+```python
+from neofuzz import char_ngram_process
+
+process = char_ngram_process()
+process.index(corpus)
+
+process.extract("your query", limit=30, refine_levenshtein=True)
+```
+
 ### Why is Neofuzz fast?
 Most fuzzy search libraries rely on optimizing the hell out of the same couple of fuzzy search algorithms (Hamming distance, Levenshtein distance). Sometimes unfortunately due to the complexity of these algorithms, no amount of optimization will get you the speed, that you want.
 
@@ -93,7 +107,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
  process = Process(vectorizer, metric="cosine")
 ```
 
-### Dimentionality Reduction
+### Dimensionality Reduction
 
 You might find that the speed of your fuzzy search process is not sufficient. In this case it might be desirable to reduce the dimentionality of the produced vectors with some matrix decomposition method or topic model.
 
@@ -107,7 +121,7 @@ from sklearn.pipeline import make_pipeline
 
 # Vectorization with tokens again
 vectorizer = TfidfVectorizer()
-# Dimentionality reduction method to 20 dimentions
+# Dimensionality reduction method to 20 dimensions
 nmf = NMF(n_components=20)
 # Create a pipeline of the two
 pipeline = make_pipeline(vectorizer, nmf)
