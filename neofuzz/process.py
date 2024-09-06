@@ -404,6 +404,7 @@ def char_ngram_process(
     ngram_range: Tuple[int, int] = (1, 5),
     tf_idf: bool = True,
     metric: str = "cosine",
+    refine_levenshtein: bool = False,
 ) -> Process:
     """Basic character n-gram based fuzzy search process.
 
@@ -416,6 +417,11 @@ def char_ngram_process(
         Flag signifying whether the features should be tf-idf weighted.
     metric: str, default 'cosine'
         Distance metric to use for fuzzy search.
+    refine_levenshtein: bool, default None
+        Indicates whether results should be refined with Levenshtein distance
+        using TheFuzz.
+        This can increase the accuracy of your results.
+        If not specified, the process's attribute is used.
 
     Returns
     -------
@@ -426,4 +432,6 @@ def char_ngram_process(
         vectorizer = TfidfVectorizer(ngram_range=ngram_range, analyzer="char")
     else:
         vectorizer = CountVectorizer(ngram_range=ngram_range, analyzer="char")
-    return Process(vectorizer, metric=metric)
+    return Process(
+        vectorizer, metric=metric, refine_levenshtein=refine_levenshtein
+    )
