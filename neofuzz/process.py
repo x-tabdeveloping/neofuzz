@@ -7,6 +7,7 @@ import numpy as np
 import pynndescent
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import pairwise_distances
+from thefuzz import process as thefuzz_process
 
 
 class Process:
@@ -20,6 +21,8 @@ class Process:
         Some kind of vectorizer model that can vectorize strings.
         You could use tf-idf, bow or even a Pipeline that
         has multiple steps.
+    refine_levenshtein: bool, default False
+        Indicates whether final results should be refined with the Levenshtein algorithm
     metric: string or callable, default 'cosine'
         The metric to use for computing nearest neighbors. If a callable is
         used it must be a numba njit compiled function. Supported metrics
@@ -143,6 +146,7 @@ class Process:
     def __init__(
         self,
         vectorizer,
+        refine_levenshtein=False,
         metric="cosine",
         metric_kwds=None,
         n_neighbors=30,
@@ -165,6 +169,7 @@ class Process:
         verbose=False,
     ):
         self.vectorizer = vectorizer
+        self.refine_levenshtein = refine_levenshtein
         self.nearest_neighbours_kwargs = {
             "metric": metric,
             "metric_kwds": metric_kwds,
@@ -213,7 +218,10 @@ class Process:
         self.nearest_neighbours.prepare()
 
     def query(
-        self, search_terms: Iterable[str], limit: int = 10
+        self,
+        search_terms: Iterable[str],
+        limit: int = 10,
+        refine_levenshtein: Optional[bool] = None,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Searches for the given terms in the options.
 
@@ -223,6 +231,11 @@ class Process:
             Terms to search for.
         limit: int, default 10
             Amount of closest matches to return.
+        refine_levenshtein: bool, default None
+            Indicates whether results should be refined with Levenshtein distance
+            using TheFuzz.
+            This can increase the accuracy of your results.
+            If not specified, the process's attribute is used.
 
         Parameters
         ----------
@@ -237,13 +250,36 @@ class Process:
                 " please index before querying."
             )
         search_matrix = self.vectorizer.transform(search_terms)
-        return self.nearest_neighbours.query(search_matrix, k=limit)
+        indices, distances = self.nearest_neighbours.query(
+            search_matrix, k=limit
+        )
+        if refine_levenshtein is None:
+            refine_levenshtein = self.refine_levenshtein
+        if refine_levenshtein:
+            refined_indices = []
+            refined_distances = []
+            for term, idx in zip(search_terms, indices):
+                options = list(self.options[idx])
+                res = thefuzz_process.extract(
+                    term, options, limit=len(options)
+                )
+                res_indices = []
+                res_dist = []
+                for result_term, result_sim in res:
+                    res_indices.append(idx[options.index(result_term)])
+                    res_dist.append(1 - (result_sim / 100))
+                refined_indices.append(res_indices)
+                refined_distances.append(res_dist)
+            indices = np.stack(refined_indices)
+            distances = np.stack(refined_distances)
+        return indices, distances
 
     def extract(
         self,
         query: str,
         choices: Optional[Iterable[str]] = None,
         limit: int = 10,
+        refine_levenshtein: Optional[bool] = None,
     ) -> List[Tuple[str, int]]:
         """TheFuzz compatible querying.
 
@@ -257,6 +293,11 @@ class Process:
             it will be used for indexing.
         limit: int, default 10
             Number of results to return
+        refine_levenshtein: bool, default None
+            Indicates whether results should be refined with Levenshtein distance
+            using TheFuzz.
+            This can increase the accuracy of your results.
+            If not specified, the process's attribute is used.
 
         Returns
         -------
@@ -271,7 +312,9 @@ class Process:
                     "and no choices were provided."
                 )
             self.index(options=choices)
-        indices, distances = self.query([query], limit=limit)
+        indices, distances = self.query(
+            [query], limit=limit, refine_levenshtein=refine_levenshtein
+        )
         indices = np.ravel(indices)
         distances = np.ravel(distances)
         scores = (1 - distances) * 100
