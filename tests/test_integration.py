@@ -15,11 +15,11 @@ def test_intergration():
         "This is another query",
     ]
     process = Process(make_pipeline(SubWordVectorizer(), NMF(20)))
-    process.index(corpus)
+    process.index(corpus[:-100])
     indices, distances = process.query(queries, limit=10)
 
-    process.to_disk("process.joblib")
-    process = Process.from_disk("process.joblib")
+    process.to_disk("test_process/")
+    process = Process.from_disk("test_process/")
 
     new_indices, new_distances = process.query(queries)
     assert np.all(
