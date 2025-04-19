@@ -1,10 +1,11 @@
+import json
 import warnings
 from pathlib import Path
 from typing import Iterable, List, Optional, Tuple, Union
 
 import joblib
 import numpy as np
-import pynndescent
+from annoy import AnnoyIndex
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import pairwise_distances
 from thefuzz import process as thefuzz_process
@@ -23,178 +24,38 @@ class Process:
         has multiple steps.
     refine_levenshtein: bool, default False
         Indicates whether final results should be refined with the Levenshtein algorithm
-    metric: string or callable, default 'cosine'
-        The metric to use for computing nearest neighbors. If a callable is
-        used it must be a numba njit compiled function. Supported metrics
-        include:
-
-        * euclidean
-        * manhattan
-        * chebyshev
-        * minkowski
-        * canberra
-        * braycurtis
-        * mahalanobis
-        * wminkowski
-        * seuclidean
-        * cosine
-        * correlation
-        * haversine
-        * hamming
-        * jaccard
-        * dice
-        * russelrao
-        * kulsinski
-        * rogerstanimoto
-        * sokalmichener
-        * sokalsneath
-        * yule
-        * hellinger
-        * wasserstein-1d
-
-        Metrics that take arguments (such as minkowski, mahalanobis etc.)
-        can have arguments passed via the metric_kwds dictionary. At this
-        time care must be taken and dictionary elements must be ordered
-        appropriately; this will hopefully be fixed in the future.
-    metric_kwds: dict, default {}
-        Arguments to pass on to the metric, such as the ``p`` value for
-        Minkowski distance.
-    n_neighbors: int, default 30
-        The number of neighbors to use in k-neighbor graph graph_data structure
-        used for fast approximate nearest neighbor search. Larger values
-        will result in more accurate search results at the cost of
-        computation time.
-    n_trees: int, default None
-        This implementation uses random projection forests for initializing the index
-        build process.
-        This parameter controls the number of trees in that forest.
-        A larger number will result in more accurate neighbor computation
-        at the cost of performance.
-        The default of None means a value will be chosen based on the
-        size of the graph_data.
-    leaf_size: int, default None
-        The maximum number of points in a leaf for the random projection trees.
-        The default of None means a value will be chosen based on n_neighbors.
-    pruning_degree_multiplier: float, default 1.5
-        How aggressively to prune the graph.
-        Since the search graph is undirected
-        (and thus includes nearest neighbors and reverse nearest neighbors)
-        vertices can have very high degree
-        -- the graph will be pruned such that no
-        vertex has degree greater than
-        ``pruning_degree_multiplier * n_neighbors``.
-    diversify_prob: float, default 1.0
-        The search graph get "diversified" by removing potentially unnecessary
-        edges. This controls the volume of edges removed.
-        A value of 0.0 ensures that no edges get removed,
-        and larger values result in significantly more
-        aggressive edge removal.
-        A value of 1.0 will prune all edges that it can.
-    tree_init: bool, default True
-        Whether to use random projection trees for initialization.
-    init_graph: np.ndarray, default None
-        2D array of indices of candidate neighbours of the shape
-        (data.shape[0], n_neighbours). If the j-th neighbour of the i-th
-        instances is unknown, use init_graph[i, j] = -1
-    init_dist: np.ndarray, default None
-        2D array with the same shape as init_graph,
-        such that metric(data[i], data[init_graph[i, j]]) equals
-        init_dist[i, j]
-    random_state: int, RandomState instance or None, default None
-        If int, random_state is the seed used by the random number generator;
-        If RandomState instance, random_state is the random number generator;
-        If None, the random number generator is the RandomState instance used
-        by `np.random`.
-    algorithm: str, default 'standard'
-        This implementation provides an alternative algorithm for
-        construction of the k-neighbors graph used as a search index. The
-        alternative algorithm can be fast for large ``n_neighbors`` values.
-        The``'alternative'`` algorithm has been deprecated and is no longer
-        available.
-    low_memory: boolean, default True
-        Whether to use a lower memory, but more computationally expensive
-        approach to index construction.
-    max_candidates: int, default None
-        Internally each "self-join" keeps a maximum number of candidates (
-        nearest neighbors and reverse nearest neighbors) to be considered.
-        This value controls this aspect of the algorithm. Larger values will
-        provide more accurate search results later, but potentially at
-        non-negligible computation cost in building the index. Don't tweak
-        this value unless you know what you're doing.
-    n_iters: int, default None
-        The maximum number of NN-descent iterations to perform. The
-        NN-descent algorithm can abort early if limited progress is being
-        made, so this only controls the worst case. Don't tweak
-        this value unless you know what you're doing. The default of None means
-        a value will be chosen based on the size of the graph_data.
-    delta: float, default 0.001
-        Controls the early abort due to limited progress. Larger values
-        will result in earlier aborts, providing less accurate indexes,
-        and less accurate searching. Don't tweak this value unless you know
-        what you're doing.
-    n_jobs: int or None, default None
-        The number of parallel jobs to run for neighbors index construction.
-        ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.
-        ``-1`` means using all processors.
-    compressed: bool, default False
-        Whether to prune out data not needed for searching the index. This will
-        result in a significantly smaller index, particularly useful
-        for saving,
-        but will remove information that might otherwise be useful.
+    metric: str, default 'angular'
+        The metric to use for computing nearest neighbors.
+        Metric can be "angular", "euclidean", "manhattan", "hamming", or "dot".
+    n_jobs: int, default -1
+        Number of cores to use for indexing, uses all by default.
+    n_trees: int, default 10
+        Number of trees to build.
     """
 
     def __init__(
         self,
         vectorizer,
         refine_levenshtein=False,
-        metric="cosine",
-        metric_kwds=None,
-        n_neighbors=30,
-        n_trees=None,
-        leaf_size=None,
-        pruning_degree_multiplier=1.5,
-        diversify_prob=1.0,
-        n_search_trees=1,
-        tree_init=True,
-        init_graph=None,
-        init_dist=None,
-        random_state=None,
-        low_memory=True,
-        max_candidates=None,
-        n_iters=None,
-        delta=0.001,
-        n_jobs=None,
-        compressed=False,
-        parallel_batch_queries=False,
-        verbose=False,
+        metric="angular",
+        n_jobs=-1,
+        n_trees=10,
     ):
         self.vectorizer = vectorizer
         self.refine_levenshtein = refine_levenshtein
-        self.nearest_neighbours_kwargs = {
-            "metric": metric,
-            "metric_kwds": metric_kwds,
-            "n_neighbors": n_neighbors,
-            "n_trees": n_trees,
-            "leaf_size": leaf_size,
-            "pruning_degree_multiplier": pruning_degree_multiplier,
-            "diversify_prob": diversify_prob,
-            "n_search_trees": n_search_trees,
-            "tree_init": tree_init,
-            "init_graph": init_graph,
-            "init_dist": init_dist,
-            "random_state": random_state,
-            "low_memory": low_memory,
-            "max_candidates": max_candidates,
-            "n_iters": n_iters,
-            "delta": delta,
-            "n_jobs": n_jobs,
-            "compressed": compressed,
-            "parallel_batch_queries": parallel_batch_queries,
-            "verbose": verbose,
-        }
         self.nearest_neighbours = None
         self.options = None
         self.metric = metric
+        self.n_jobs = n_jobs
+        self.n_trees = n_trees
+
+    def _get_args(self) -> dict:
+        return dict(
+            refine_levenshtein=self.refine_levenshtein,
+            metric=self.metric,
+            n_jobs=self.n_jobs,
+            n_trees=self.n_trees,
+        )
 
     def index(self, options: Iterable[str]):
         """Indexes all options for fast querying.
@@ -204,18 +65,19 @@ class Process:
         options: iterable of str
             All options in which we want search.
         """
-        self.options = np.array(options)
+        self.options = np.array(list(options))
         try:
             self.vectorizer.fit(self.options)
         except AttributeError:
             print(
                 "Vectorizer could not be fitted, we assume it was pretrained."
             )
-        dtm = self.vectorizer.transform(self.options)
-        self.nearest_neighbours = pynndescent.NNDescent(
-            dtm, **self.nearest_neighbours_kwargs
-        )
-        self.nearest_neighbours.prepare()
+        vectors = self.vectorizer.transform(self.options)
+        n_dimensions = vectors.shape[1]
+        self.nearest_neighbours = AnnoyIndex(n_dimensions, self.metric)
+        for i_option, vector in enumerate(vectors):
+            self.nearest_neighbours.add_item(i_option, vector)
+        self.nearest_neighbours.build(self.n_trees, n_jobs=self.n_jobs)
 
     def query(
         self,
@@ -250,9 +112,16 @@ class Process:
                 " please index before querying."
             )
         search_matrix = self.vectorizer.transform(search_terms)
-        indices, distances = self.nearest_neighbours.query(
-            search_matrix, k=limit
-        )
+        indices = []
+        distances = []
+        for query_vector in search_matrix:
+            ind, dist = self.nearest_neighbours.get_nns_by_vector(
+                query_vector, limit, include_distances=True
+            )
+            indices.append(ind)
+            distances.append(dist)
+        indices = np.array(indices)
+        distances = np.array(distances)
         if refine_levenshtein is None:
             refine_levenshtein = self.refine_levenshtein
         if refine_levenshtein:
@@ -372,32 +241,48 @@ class Process:
         score = (1 - distance) * 100
         return int(score)
 
-    def to_disk(self, filename: Union[str, Path]):
+    def to_disk(self, save_dir: Union[str, Path]):
         """Persists indexed process to disk.
 
         Parameters
         ----------
-        filename: str or Path
-            File path to save the process to.
-            e.g. `process.joblib`
+        save_dir: str or Path
+            Directory path to save the process to.
+            e.g. `n_gram_process/`
         """
-        if self.options is None or self.nearest_neighbours is None:
-            warnings.warn(
-                "No options were provided and the process is not indexed. Are you sure you want to persist yet?"
-            )
-        joblib.dump(self, filename)
+        save_dir = Path(save_dir)
+        save_dir.mkdir(exist_ok=True)
+        np.save(
+            save_dir.joinpath("options.npy"),
+            self.options,
+        )
+        joblib.dump(self.vectorizer, save_dir.joinpath("vectorizer.joblib"))
+        with save_dir.joinpath("config.json").open("w") as config_file:
+            config_file.write(json.dumps(self._get_args()))
+        self.nearest_neighbours.save(str(save_dir.joinpath("index.annoy")))
 
-    @staticmethod
-    def from_disk(filename: Union[str, Path]):
+    @classmethod
+    def from_disk(cls, save_dir: Union[str, Path]):
         """Loads indexed process from disk.
 
         Parameters
         ----------
-        filename: str or Path
-            File path to save the process to.
+        save_dir: str or Path
+            Directory path to load the process from.
             e.g. `process.joblib`
         """
-        return joblib.load(filename)
+        save_dir = Path(save_dir)
+        options = np.load(save_dir.joinpath("options.npy"))
+        vectorizer = joblib.load(save_dir.joinpath("vectorizer.joblib"))
+        n_dims = vectorizer.transform(["something"]).shape[1]
+        with save_dir.joinpath("config.json").open() as config_file:
+            config = json.loads(config_file.read())
+        index = AnnoyIndex(n_dims, config["metric"])
+        index.load(str(save_dir.joinpath("index.annoy")))
+        result = cls(vectorizer, **config)
+        result.options = options
+        result.nearest_neighbours = index
+        return result
 
 
 def char_ngram_process(
