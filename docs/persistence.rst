@@ -2,7 +2,7 @@ Persistence
 ================
 
 You might want to persist processes to disk and reuses them in production pipelines.
-Neofuzz can serialize indexed Process objects for you using `joblib`.
+Neofuzz can serialize indexed Process objects for you to a given directory.
 
 You can save indexed processes like so:
 
@@ -14,7 +14,7 @@ You can save indexed processes like so:
    process = char_ngram_process()
    process.index(corpus)
  
-   process.to_disk("process.joblib")
+   process.to_disk("process/")
 
 
 And then load them in a production environment:
@@ -23,4 +23,4 @@ And then load them in a production environment:
 
    from neofuzz import Process
  
-   process = Process.from_disk("process.joblib")
+   process = Process.from_disk("process/")

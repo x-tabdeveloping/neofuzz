@@ -90,8 +90,7 @@ You can customize Neofuzz’s behaviour by making a custom process.
 Under the hood every Neofuzz Process relies on the same two components:
 
  - A vectorizer, which turns texts into a vectorized form, and can be fully customized.
- - Approximate Nearest Neighbour search, which indexes the vector space and can find neighbours of a given vector very quickly. This component is fixed to be PyNNDescent, but all of its parameters are exposed in the API, so its behaviour can also be altered at will.
-
+ - Approximate Nearest Neighbour search, which indexes the vector space and can find neighbours of a given vector very quickly
 ### Words as Features
 
 If you’re more interested in the words/semantic content of the text you can also use them as features. This can be very useful especially with longer texts, such as literary works.

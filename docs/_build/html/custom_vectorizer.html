@@ -284,7 +284,7 @@ don’t want to rely on semantic content.</p>
 <span class="k">def</span><span class="w"> </span><span class="nf">char_ngram_process</span><span class="p">(</span>
     <span class="n">ngram_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
     <span class="n">tf_idf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cosine&quot;</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;angular&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Process</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">tf_idf</span><span class="p">:</span>
         <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">(</span><span class="n">ngram_range</span><span class="o">=</span><span class="n">ngram_range</span><span class="p">,</span> <span class="n">analyzer</span><span class="o">=</span><span class="s2">&quot;char&quot;</span><span class="p">)</span>
@@ -307,7 +307,7 @@ This can be very useful especially with longer texts, such as literary works.</p
  <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">()</span>
 
  <span class="c1"># We use cosine distance because it&#39;s waay better for high-dimensional spaces.</span>
- <span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">)</span>
+ <span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;angular&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -322,7 +322,7 @@ A good option for this is to use a pretrained tokenizer from a language model!</
  <span class="c1"># We can use bert&#39;s wordpiece tokenizer for feature extraction</span>
  <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">SubWordVectorizer</span><span class="p">(</span><span class="s2">&quot;bert-base-uncased&quot;</span><span class="p">)</span>
 
- <span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">)</span>
+ <span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;angular&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -343,7 +343,7 @@ reduce the dimensionality of the produced vectors with some matrix decomposition
 <span class="c1"># Create a pipeline of the two</span>
 <span class="n">pipeline</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">nmf</span><span class="p">)</span>
 
-<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">)</span>
+<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;angular&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -361,27 +361,10 @@ just simple neural word or document embeddings (Word2Vec, Doc2Vec, FastText, etc
 <span class="c1"># Here we will use a pretrained Bert sentence encoder as vectorizer</span>
 <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">SentenceEncoder</span><span class="p">(</span><span class="s2">&quot;all-distilroberta-v1&quot;</span><span class="p">)</span>
 <span class="c1"># Then we make a process with the language model</span>
-<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">)</span>
+<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;angular&quot;</span><span class="p">)</span>
 
 <span class="c1"># Remember that the options STILL have to be indexed even though you have a pretrained vectorizer</span>
 <span class="n">process</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="custom-nearest-neighbour-search">
-<h2>Custom Nearest Neighbour Search<a class="headerlink" href="#custom-nearest-neighbour-search" title="Link to this heading">¶</a></h2>
-<p>If you would like to tweak the parameters of the nearest neighbour search algorithm, you can pass additional parameters to the neofuzz process.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">neofuzz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Process</span>
-
-<span class="c1"># You can pass different parameters to the process to customize the</span>
-<span class="c1"># nearest neighour search</span>
-<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span>
-   <span class="n">vectorizer</span><span class="p">,</span>
-   <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span>
-   <span class="n">n_neighbours</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="c1"># You need more neighbours to be accurate.</span>
-   <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="c1"># You have a lot of memory and need the index to be built fast.</span>
-   <span class="n">n_jobs</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="c1"># You want the search to run in parallel.</span>
-<span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -448,7 +431,6 @@ just simple neural word or document embeddings (Word2Vec, Doc2Vec, FastText, etc
 <li><a class="reference internal" href="#subword-features-new-in-0-2-0">Subword Features (New in 0.2.0)</a></li>
 <li><a class="reference internal" href="#dimensionality-reduction">Dimensionality Reduction</a></li>
 <li><a class="reference internal" href="#semantic-search">Semantic Search</a></li>
-<li><a class="reference internal" href="#custom-nearest-neighbour-search">Custom Nearest Neighbour Search</a></li>
 </ul>
 </li>
 </ul>

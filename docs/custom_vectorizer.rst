@@ -28,7 +28,7 @@ This piece of code I literally took from the library itself because it's only ni
   def char_ngram_process(
       ngram_range: Tuple[int, int] = (1, 5),
       tf_idf: bool = True,
-      metric: str = "cosine",
+      metric: str = "angular",
   ) -> Process:
       if tf_idf:
           vectorizer = TfidfVectorizer(ngram_range=ngram_range, analyzer="char")
@@ -54,7 +54,7 @@ This can be very useful especially with longer texts, such as literary works.
    vectorizer = TfidfVectorizer()
 
    # We use cosine distance because it's waay better for high-dimensional spaces.
-   process = Process(vectorizer, metric="cosine")
+   process = Process(vectorizer, metric="angular")
 
 
 Subword Features (New in 0.2.0)
@@ -73,7 +73,7 @@ Here's an example of how to use a Bert-type WordPiece tokenizer for vectorizatio
    # We can use bert's wordpiece tokenizer for feature extraction
    vectorizer = SubWordVectorizer("bert-base-uncased")
 
-   process = Process(vectorizer, metric="cosine")
+   process = Process(vectorizer, metric="angular")
 
 
 Dimensionality Reduction
@@ -98,7 +98,7 @@ Here for example I use NMF (excellent topic model and incredibly fast one too) t
    # Create a pipeline of the two
    pipeline = make_pipeline(vectorizer, nmf)
 
-   process = Process(pipeline, metric="cosine")
+   process = Process(pipeline, metric="angular")
 
 Semantic Search
 ^^^^^^^^^^^^^^^
@@ -120,26 +120,8 @@ We recommend you try embetter, which has a lot of built-in sklearn compatible ve
    # Here we will use a pretrained Bert sentence encoder as vectorizer
    vectorizer = SentenceEncoder("all-distilroberta-v1")
    # Then we make a process with the language model
-   process = Process(vectorizer, metric="cosine")
+   process = Process(vectorizer, metric="angular")
 
    # Remember that the options STILL have to be indexed even though you have a pretrained vectorizer
    process.index(options)
 
-Custom Nearest Neighbour Search
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-If you would like to tweak the parameters of the nearest neighbour search algorithm, you can pass additional parameters to the neofuzz process.
-
-.. code-block:: python
-
-   from neofuzz import Process
-
-   # You can pass different parameters to the process to customize the
-   # nearest neighour search
-   process = Process(
-      vectorizer, 
-      metric="cosine",
-      n_neighbours=50, # You need more neighbours to be accurate.
-      low_memory=False, # You have a lot of memory and need the index to be built fast.
-      n_jobs=8, # You want the search to run in parallel.
-   )
