@@ -63,7 +63,7 @@ from neofuzz import char_ngram_process
 # We create a process that takes character 1 to 5-grams as features for
 # vectorization and uses a tf-idf weighting scheme.
 # We will use cosine distance for the nearest neighbour search.
-process = char_ngram_process(ngram_range=(1,5), metric="cosine", tf_idf=True)
+process = char_ngram_process(ngram_range=(1,5), metric="angular", tf_idf=True)
 
 # We index the options that we are going to search in
 process.index(options)
@@ -103,7 +103,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
  vectorizer = TfidfVectorizer()
 
  # We use cosine distance because it's waay better for high-dimentional spaces.
- process = Process(vectorizer, metric="cosine")
+ process = Process(vectorizer, metric="angular")
 ```
 
 ### Dimensionality Reduction
@@ -125,7 +125,7 @@ nmf = NMF(n_components=20)
 # Create a pipeline of the two
 pipeline = make_pipeline(vectorizer, nmf)
 
-process = Process(pipeline, metric="cosine")
+process = Process(pipeline, metric="angular")
 ```
 
 ### Semantic Search/Large Language Models
@@ -144,7 +144,7 @@ from neofuzz import Process
 # Here we will use a pretrained Bert sentence encoder as vectorizer
 vectorizer = SentenceEncoder("all-distilroberta-v1")
 # Then we make a process with the language model
-process = Process(vectorizer, metric="cosine")
+process = Process(vectorizer, metric="angular")
 
 # Remember that the options STILL have to be indexed even though you have a pretrained vectorizer
 process.index(options)
